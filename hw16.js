@@ -3,10 +3,10 @@ var svgHeight = 500;
 
 // Define the chart's margins as an object
 var margin = {
-  top: 30,
-  right: 30,
-  bottom: 30,
-  left: 30
+  top: 50,
+  right: 50,
+  bottom: 50,
+  left: 70
 };
 
 // Define dimensions of the chart area
@@ -74,25 +74,56 @@ d3.csv("HW16_D3.csv", function (error, censusData) {
   .data(censusData)
   .enter()
   .append("circle")
-  .attr("cx", function(d) {x_scale(d.poverty)})
-  .attr("cy", function(d) {y_scale(d.healthcare)})
-  .attr("r", "15")
+  .attr("class", "dot")
+  .attr("cx", d => x_scale(d.poverty))
+  .attr("cy", d => y_scale(d.healthcare))
+  .attr("r", "10")
   .attr("fill", "blue")
   .attr("opacity", ".5")
-
-  //console.log("Circles Group", circlesGroup);          
-  //console.log("Census Data", censusData);
-
+  //.attr("text", censusData.st_abbr)
+  //
+  circlesGroup.append("text")
+        .attr("dx", function(d){return -2})
+        .text(function(d){return d.abbr})
   
+  // Tool Tip Time
+  // Initialize tool tip
+  // ==============================
+  var toolTip = d3.tip()
+    .attr("class", "tooltip")
+    .offset([80, -60])
+    .html(function (d) {
+      return (`${d.abbr}<br>Poverty: ${d.poverty}<br>Lack Health Ins: ${d.healthcare}`);
+    });
+
+  // Step 7: Create tooltip in the chart
+  // ==============================
+  chartGroup.call(toolTip);
+
+  // Step 8: Create event listeners to display and hide the tooltip
+  // ==============================
+  circlesGroup.on("mouseover", function (data) {
+      toolTip.show(data);
+    })
+    // onmouseout event
+    .on("mouseout", function (data, index) {
+      toolTip.hide(data);
+    });
+
+  //Put labels on the Axes
+  chartGroup.append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 0 - margin.left + 10)
+  .attr("x", 0 - (height / 2))
+  .attr("dy", "1em")
+  .attr("class", "axisText")
+  .text("Lack Health Insurance (%)");
+
+  chartGroup.append("text")
+  .attr("transform", `translate(${width/2}, ${height + margin.bottom - 2})`)
+  .attr("class", "axisText")
+  .text("In Poverty (%)");
+
   });
-
-
-
-
-
-//===============
-
-//===============
-
   
-
+  
